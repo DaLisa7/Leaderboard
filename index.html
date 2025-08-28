@@ -1,26 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Live Leaderboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Styled Full Leaderboard</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9fafb; }
-    h1 { text-align: center; color: #333; }
-    table { width: 70%; margin: 20px auto; border-collapse: collapse; font-size: 18px; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-    th { background-color: #f2f2f2; }
-    tr:nth-child(1) { background: #ffd700; font-weight: bold; } /* Gold for 1st place */
-    tr:nth-child(2) { background: #c0c0c0; } /* Silver for 2nd */
-    tr:nth-child(3) { background: #cd7f32; } /* Bronze for 3rd */
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    h1 { text-align: center; color: #333; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 0 auto; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; position: sticky; top: 0; }
+    tbody tr:nth-child(odd) { background-color: #fafafa; }
+    tbody tr:nth-child(even) { background-color: #fff; }
+    tbody tr:nth-child(1) { background-color: #ffd700; font-weight: bold; }
+    tbody tr:nth-child(2) { background-color: #c0c0c0; font-weight: bold; }
+    tbody tr:nth-child(3) { background-color: #cd7f32; font-weight: bold; }
+    .level-4 { color: #000; font-weight: bold; }     /* Master */
+    .level-3 { color: #d9534f; font-weight: bold; }  /* Novice */
+    .level-2 { color: #5bc0de; font-weight: bold; }  /* Beginner */
+    .scroll-container { overflow-x: auto; }
   </style>
 </head>
 <body>
-  <h1>🏆 Live Leaderboard 🏆</h1>
-  <table id="leaderboard">
-    <thead>
-      <tr><th>Rank</th><th>Name</th><th>Points</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h1>🏆 Styled Full Leaderboard 🏆</h1>
+  <div class="scroll-container">
+    <table id="leaderboard">
+      <thead>
+        <tr>
+          <th>Rank</th><th>Name</th><th>Total Points</th><th>Level</th><th>Badge/Title</th>
+          <th>Sub-Rank</th><th>Name</th><th>Points</th><th>Level</th><th>Badge</th>
+          <th>Attendance</th><th>Assignment</th><th>Speaking Eng</th><th>Present</th><th>Absent</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json&gid=2077006532";
@@ -28,33 +42,31 @@
     function loadLeaderboard() {
       fetch(sheetURL)
         .then(res => res.text())
-        .then(data => {
-          const json = JSON.parse(data.match(/google\.visualization\.Query\.setResponse\((.*)\);/)[1]);
+        .then(text => {
+          const json = JSON.parse(text.match(/google\\.visualization\\.Query\\.setResponse\\((.*)\\);/)[1]);
           const rows = json.table.rows;
-
-          // Map Google Sheet rows into usable leaderboard data
-          let leaderboard = rows.map(r => ({
-            name: r.c[0]?.v || "",
-            points: parseFloat(r.c[1]?.v) || 0
-          }));
-
-          // Sort by points descending
-          leaderboard.sort((a, b) => b.points - a.points);
-
-          // Render table
           const tbody = document.querySelector("#leaderboard tbody");
           tbody.innerHTML = "";
-          leaderboard.forEach((player, index) => {
+          rows.forEach((r, idx) => {
+            const cells = r.c.map(c => c ? c.v : "");
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${index+1}</td><td>${player.name}</td><td>${player.points}</td>`;
+            const level = cells[3];
+            let levelClass = "";
+            if (level == "4" || level.toLowerCase() === "master") levelClass = "level-4";
+            if (level == "3" || level.toLowerCase() === "novice") levelClass = "level-3";
+            if (level == "2" || level.toLowerCase() === "beginner") levelClass = "level-2";
+
+            tr.innerHTML = cells.map((c, i) => {
+              return i === 3 ? `<td class="${levelClass}">${c}</td>` : `<td>${c}</td>`;
+            }).join("");
             tbody.appendChild(tr);
           });
         })
-        .catch(err => console.error("Error loading leaderboard:", err));
+        .catch(console.error);
     }
 
     loadLeaderboard();
-    setInterval(loadLeaderboard, 60000); // Auto-refresh every 60 sec
+    setInterval(loadLeaderboard, 60000); // Refresh every 60 seconds
   </script>
 </body>
 </html>
