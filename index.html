@@ -38,7 +38,8 @@
 
   <script>
     <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json&gid=2077006532
+";
 
 function loadLeaderboard() {
   fetch(sheetURL)
@@ -69,3 +70,4 @@ function loadLeaderboard() {
 loadLeaderboard();
 setInterval(loadLeaderboard, 60000); // Refresh every 60 seconds
 </script>
+
