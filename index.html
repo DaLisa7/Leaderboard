@@ -37,37 +37,36 @@
   </div>
 
   <script>
-    <script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json&gid=2077006532
-";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json&gid=2077006532";
 
-function loadLeaderboard() {
-  fetch(sheetURL)
-    .then(res => res.text())
-    .then(text => {
-      const json = JSON.parse(text.match(/google\\.visualization\\.Query\\.setResponse\\((.*)\\);/)[1]);
-      const rows = json.table.rows;
-      const tbody = document.querySelector("#leaderboard tbody");
-      tbody.innerHTML = "";
-      rows.forEach((r, idx) => {
-        const cells = r.c.map(c => c ? c.v : "");
-        const tr = document.createElement("tr");
-        const level = cells[3];
-        let levelClass = "";
-        if (level == "4" || level.toLowerCase() === "master") levelClass = "level-4";
-        if (level == "3" || level.toLowerCase() === "novice") levelClass = "level-3";
-        if (level == "2" || level.toLowerCase() === "beginner") levelClass = "level-2";
+    function loadLeaderboard() {
+      fetch(sheetURL)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.match(/google\\.visualization\\.Query\\.setResponse\\((.*)\\);/)[1]);
+          const rows = json.table.rows;
+          const tbody = document.querySelector("#leaderboard tbody");
+          tbody.innerHTML = "";
+          rows.forEach((r, idx) => {
+            const cells = r.c.map(c => c ? c.v : "");
+            const tr = document.createElement("tr");
+            const level = cells[3];
+            let levelClass = "";
+            if (level == "4" || level.toLowerCase() === "master") levelClass = "level-4";
+            if (level == "3" || level.toLowerCase() === "novice") levelClass = "level-3";
+            if (level == "2" || level.toLowerCase() === "beginner") levelClass = "level-2";
 
-        tr.innerHTML = cells.map((c, i) => {
-          return i === 3 ? `<td class="${levelClass}">${c}</td>` : `<td>${c}</td>`;
-        }).join("");
-        tbody.appendChild(tr);
-      });
-    })
-    .catch(console.error);
-}
+            tr.innerHTML = cells.map((c, i) => {
+              return i === 3 ? `<td class="${levelClass}">${c}</td>` : `<td>${c}</td>`;
+            }).join("");
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(console.error);
+    }
 
-loadLeaderboard();
-setInterval(loadLeaderboard, 60000); // Refresh every 60 seconds
-</script>
-
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 60000); // Refresh every 60 seconds
+  </script>
+</body>
+</html>
