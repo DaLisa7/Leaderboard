@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Leaderboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9fafb; }
+    h1 { text-align: center; color: #333; }
+    table { width: 70%; margin: 20px auto; border-collapse: collapse; font-size: 18px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    tr:nth-child(1) { background: #ffd700; font-weight: bold; } /* Gold for 1st place */
+    tr:nth-child(2) { background: #c0c0c0; } /* Silver for 2nd */
+    tr:nth-child(3) { background: #cd7f32; } /* Bronze for 3rd */
+  </style>
+</head>
+<body>
+  <h1>🏆 Live Leaderboard 🏆</h1>
+  <table id="leaderboard">
+    <thead>
+      <tr><th>Rank</th><th>Name</th><th>Points</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSIdO6cyrCQq2U8Qpy230EQWX8CL3ze7lGfP5fVdSZFEM_PEFqRo-RhO6eVURxYmyb2vckxEMJ-WGIo/gviz/tq?tqx=out:json&gid=2077006532";
+
+    function loadLeaderboard() {
+      fetch(sheetURL)
+        .then(res => res.text())
+        .then(data => {
+          const json = JSON.parse(data.match(/google\.visualization\.Query\.setResponse\((.*)\);/)[1]);
+          const rows = json.table.rows;
+
+          // Map Google Sheet rows into usable leaderboard data
+          let leaderboard = rows.map(r => ({
+            name: r.c[0]?.v || "",
+            points: parseFloat(r.c[1]?.v) || 0
+          }));
+
+          // Sort by points descending
+          leaderboard.sort((a, b) => b.points - a.points);
+
+          // Render table
+          const tbody = document.querySelector("#leaderboard tbody");
+          tbody.innerHTML = "";
+          leaderboard.forEach((player, index) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${index+1}</td><td>${player.name}</td><td>${player.points}</td>`;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => console.error("Error loading leaderboard:", err));
+    }
+
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 60000); // Auto-refresh every 60 sec
+  </script>
+</body>
+</html>
